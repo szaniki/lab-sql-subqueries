@@ -1,17 +1,11 @@
 USE Sakila;
 -- 1. How many copies of the film Hunchback Impossible exist in the inventory system? 
 
-SELECT * FROM inventory;
-SELECT * FROM film;
-
-SELECT film_id
-FROM film
-WHERE title = 'Hunchback Impossible';
-SELECT COUNT(film_id)
-FROM inventory
-WHERE film_id = (SELECT film_id
-FROM film
-WHERE title = 'Hunchback Impossible');
+SELECT f.title, COUNT(i.inventory_id) AS 'Nr Copies'
+FROM sakila.inventory i
+INNER JOIN sakila.film f ON i.film_id = f.film_id
+WHERE f.title = 'Hunchback Impossible'
+GROUP BY f.title;
 
 -- 6 copies of Hunchback Impossible
 
@@ -22,7 +16,9 @@ WHERE length > (SELECT
 AVG(length)
 FROM sakila.film);
 
+
 -- 3. Use subqueries to display all actors who appear in the film Alone Trip.
+
 SELECT first_name, last_name
 FROM actor
 WHERE actor_id IN (
@@ -35,19 +31,21 @@ WHERE actor_id IN (
 
 -- 4. Sales have been lagging among young families. Identify all movies categorized as family films.
 
-SELECT title AS Title
-FROM sakila.film
-WHERE film_id IN
-(SELECT film_id
+SELECT film_id, title FROM sakila.film
+WHERE film_id IN (SELECT film_id
 FROM sakila.film_category
-WHERE category_id IN
-(SELECT category_id
-FROM sakila.category
-WHERE name = 'Family'));
+WHERE category_id IN (SELECT category_id FROM sakila.category WHERE name = 'Family'));
 
 -- 5. Get name and email from customers from Canada using subqueries. 
 -- Do the same with joins. Note that to create a join, you will have to identify the correct 
 -- tables with their primary keys and foreign keys, that will help you get the relevant info.
+
+
+SELECT first_name, last_name, email FROM customer
+JOIN address USING (address_id)
+JOIN city USING (city_id)
+JOIN country USING (country_id)
+WHERE country = 'CANADA';
 
 SELECT CONCAT(first_name, ' ', last_name) AS Customer_Name, email
 FROM sakila.customer
